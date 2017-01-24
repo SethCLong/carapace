@@ -3,14 +3,31 @@
 from lxml import html
 import requests
 
-page = requests.get('http://econpy.pythonanywhere.com/ex/001.html')
-tree = html.fromstring(page.content)
+visited = []
+results = []
 
-# <div title="buyer-name">Carson Busses</div>
-# <span class="item-price">$29.95</span>
+def parsePage(url):
+    global visited, results
 
-buyers = tree.xpath('//div[@title="buyer-name"]/text()')
-prices = tree.xpath('//span[@class="item-price"]/text()')
+    page = requests.get(url)
+    tree = html.fromstring(page.content)
 
-print buyers
-print prices
+    # <div title="buyer-name">Carson Busses</div>
+    # <span class="item-price">$29.95</span>
+
+    buyers = tree.xpath('//div[@title="buyer-name"]/text()')
+    prices = tree.xpath('//span[@class="item-price"]/text()')
+
+    results += zip(buyers, prices)
+
+    # mark page as visited
+    visited.append(url)
+
+    # parse the anchor tages to get other pages
+    for anchor in tree.xpath('/html/body/div[1]/a'):
+        if anchor.attrib["href"] not in visited:
+            parsePage(anchor.attrib["href"])
+
+
+parsePage('http://econpy.pythonanywhere.com/ex/001.html')
+print results
